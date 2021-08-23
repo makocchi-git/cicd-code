@@ -46,7 +46,7 @@ jobs:
       # image tagを書き換えます
       - name: Update image tag
         run: |
-          sed -i -e "s|image: docker.pkg.github.com/${{ github.repository }}/gitops-go-app:.*|image: docker.pkg.github.com/${{ github.repository }}/gitops-go-app:${{ github.run_number }}" manifests/deployment.yaml
+          sed -i -e "s|image: docker.pkg.github.com/${{ github.repository }}/gitops-go-app:.*|image: docker.pkg.github.com/${{ github.repository }}/gitops-go-app:${{ github.run_number }}|" manifests/deployment.yaml
 
       # プルリクエストを作成します
       - name: Create Pull Request
