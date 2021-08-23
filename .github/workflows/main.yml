@@ -31,3 +31,30 @@ jobs:
           docker image pull nginx:latest 
           docker image tag nginx:latest docker.pkg.github.com/${{ github.repository }}/gitops-go-app:${{ github.run_number }}
           docker image push docker.pkg.github.com/${{ github.repository }}/gitops-go-app:${{ github.run_number }}
+
+  create-pr-k8s-manifest:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      # config repo を checkout します
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          repository: makocchi-git/cicd-config
+
+      # image tagを書き換えます
+      - name: Update image tag
+        run: |
+          sed -i -e "s|image: docker.pkg.github.com/${{ github.repository }}/gitops-go-app:.*|image: docker.pkg.github.com/${{ github.repository }}/gitops-go-app:${{ github.run_number }}" manifests/deployment.yaml
+
+      # プルリクエストを作成します
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v3
+        with:
+          token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          repository: makocchi-git/cicd-config
+          commit-message: "Update tag ${{ github.run_number }}"
+          title: "Update tag ${{ github.run_number }}"
+          body: "Please Merge !!"
+          branch: "feature/${{ github.run_number }}"
